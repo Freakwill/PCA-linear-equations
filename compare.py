@@ -60,8 +60,8 @@ if __name__ == '__main__':
     ax.set_ylabel("相对误差", fontproperties=myfont)
     ax.set_title('PCA, NMF预测误差与相对用时比较', fontproperties=myfont)
 
-    ax.plot(ps, pca['test'])
-    ax.plot(ps, nmf['test'])
+    ax.plot(ps, pca['test'], '-o')
+    ax.plot(ps, nmf['test'], '-d')
     ax.legend(('PCA预测误差', 'NMF预测误差'), prop=myfont)
 
     time1 = time.perf_counter()
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     # ax.annotate('预测相对误差', color='green', xy=(ps[0], ret), xytext=(ps[0], ret - 0.05), arrowprops={'arrowstyle':'->', 'color':'green'}, fontproperties=myfont)
 
     tax = ax.twinx()
-    tax.plot(ps, pca['time']/time2, '-.', ps, nmf['time']/time2, '-.')
+    tax.plot(ps, pca['time']/time2, '-.', ps, nmf['time']/time2, '-.+')
     tax.set_ylabel('降维用时/不降维用时', fontproperties=myfont)
     tax.legend(('PCA相对用时', 'NMF相对用时'), prop=myfont)
  
