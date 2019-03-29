@@ -1,11 +1,8 @@
 # PCA-linear-equations
 Solve linear equations via PCA
-
+pca解方程.md is the paper
 
 ## Main files
-
-### pca解方程.md
-The paper
 
 ### Illustration
 - lineq: solving linear equations with pca and draw the error-curve
@@ -16,3 +13,6 @@ The paper
 ### Algorithm
 - data: read input/ouput data
 - utils: implement of the algorithm
+
+### Regression
+regtest
