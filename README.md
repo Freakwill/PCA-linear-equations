@@ -16,3 +16,7 @@ pca解方程.md is the paper
 
 ### Regression
 regtest
+
+### TODO
+
+[] OOP for algorithm
