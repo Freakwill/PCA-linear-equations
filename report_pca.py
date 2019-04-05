@@ -11,26 +11,31 @@ import time
 from utils import *
 from data import *
 
-
 W, s, Wh = LA.svd(B.T @ B)
 A, A_test, B, B_test = train_test_split(A, B, test_size=0.2)
 
 N, r = A.shape
 N, c = B.shape
-
-time1 = time.perf_counter()
 p, q =30, 4
 
-B1 = B @ W[:, :q]
-B1_test = B_test @ W[:,:q]
+def pca():
 
-XX, _ = solve(A, B1, p)
-XX = max0(XX @ Wh[:q, :]) @ W[:, :q]
-Err = relerror(A @ XX @ Wh[:q,:], B)
-delta_time = time.perf_counter() - time1
+    time1 = time.perf_counter()
+    
 
-Err_test = relerror(A_test @ XX @ Wh[:q,:], B_test)
+    B1 = B @ W[:, :q]
+    B1_test = B_test @ W[:,:q]
 
+    XX, _ = solve(A, B1, p)
+    XX = max0(XX @ Wh[:q, :]) @ W[:, :q]
+    Err = relerror(A @ XX @ Wh[:q,:], B)
+    time2 = time.perf_counter()
+
+    Err_test = relerror(A_test @ XX @ Wh[:q,:], B_test)
+    return Err, Err_test, time2 - time1
+
+
+Err, Err_test, delta_time = np.array([pca() for _ in range(50)]).mean(axis=0)
 
 print(f'''
     解 AX=B

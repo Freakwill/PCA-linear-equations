@@ -33,7 +33,7 @@ def lsq(A, B):
     xs = [lsq_linear(A, B[:, k])['x'] for k in range(B.shape[1])]
     return np.column_stack(xs)
 
-def solve_pca(A, B, p=3):
+def solve_pca(A, B, p=3, q=None):
     """Solve AX=B with PCA
     
     Arguments:
@@ -42,28 +42,42 @@ def solve_pca(A, B, p=3):
     
     Keyword Arguments:
         p {number} -- number of components (default: {3})
+        q {number} -- number of components (default: {None})
     
     Returns:
         np.ndarray -- solution
     """
 
-    V, s, Vh = LA.svd(A.T @ A)
+    V, _, Vh = LA.svd(A.T @ A)
     Vp = V[:, :p]
     Cp = A @ Vp
-    Y = LA.lstsq(Cp, B, rcond=None)[0]
-    X = Vp @ Y
+    if q:
+        W, _, Wh = LA.svd(B.T @ B)
+        Wq = W[:, :q]
+        Bq = B @ Wq
+        Y = LA.lstsq(Cp, Bq, rcond=None)[0]
+        X = Vp @ Y @ Wh[:q,:]
+    else:
+        Y = LA.lstsq(Cp, B, rcond=None)[0]
+        X = Vp @ Y
     # Err = relerror(A @ X, B)
-    return X, Err
+    return X, 0
 
 solve = solve_pca
 
 from sklearn.decomposition import NMF
-def solve_nmf(A, B, p=3):
-    nmf = NMF(n_components=p)
+def solve_nmf(A, B, p=3, q=None):
+    nmf = NMF(n_components=p, init='nndsvd')
     nmf.fit(A)
     W = nmf.transform(A)
     H = nmf.components_
-    Y = LA.lstsq(W, B, rcond=None)[0]
-    X = lsq(H, Y)
-    # Err = relerror(A @ X, B)
-    return X, Err
+    if q:
+        U, _, Uh = LA.svd(B.T @ B)
+        Uq = U[:, :q]
+        Bq = B @ Uq
+        Y = LA.lstsq(W, Bq, rcond=None)[0]
+        X = LA.lstsq(H, Y, rcond=None)[0] @ Uh[:q,:]
+    else:
+        Y = LA.lstsq(U, B, rcond=None)[0]
+        X = LA.lstsq(H, Y, rcond=None)[0]
+    return X, 0

@@ -15,8 +15,7 @@ from utils import *
 from data import *
 
 if __name__ == '__main__':
-
-    W, s, Wh = LA.svd(B.T @ B)
+ 
     A, A_test, B, B_test = train_test_split(A, B, test_size=0.2)
 
     Errs = []
@@ -24,20 +23,18 @@ if __name__ == '__main__':
     ps = np.arange(1, 82, 5)
     times = []
     for p in ps:
-        time1 = time.perf_counter()
-
-        q = 4
-        B1 = B @ W[:, :q]
-        B1_test = B_test @ W[:,:q]
-
-        XX, _ = solve(A, B1, p)
-        #XX = max0(XX @ Wh[:q, :]) @ W[:, :q]
-        Err = relerror(A @ XX @ Wh[:q,:], B)
-
-        time2 = time.perf_counter() - time1
-        times.append(time2)
-
-        Err_test = relerror(A_test @ XX @ Wh[:q,:], B_test)
+        t = []
+        for k in range(3):
+            time1 = time.perf_counter()
+            q = 4
+            XX, _ = solve(A, B, p, q)
+            XX = max0(XX)
+            time2 = time.perf_counter()
+            t.append(time2 - time1)
+        t = np.mean(t)
+        times.append(t)
+        Err = relerror(A @ XX, B)
+        Err_test = relerror(A_test @ XX, B_test)
 
         Errs.append(Err)
         Errs_test.append(Err_test)
@@ -49,15 +46,16 @@ if __name__ == '__main__':
     ax = plt.subplot(111)
     ax.set_xlabel("A 主成分数", fontproperties=myfont)
     ax.set_ylabel("相对误差", fontproperties=myfont)
-    ax.set_title('主成分数-误差关系图', fontproperties=myfont)
+    # ax.set_title('主成分数-误差关系图', fontproperties=myfont)
 
     ax.plot(ps, Errs, '-o', ps, Errs_test, '-s')
     ax.legend(('降维方程组误差', '预测误差'), prop=myfont)
 
     time1 = time.perf_counter()
     XX = LA.lstsq(A, B, rcond=None)[0]
+    time2 = time.perf_counter()
+    dt = time2 - time1
     re = relerror(A @ XX, B)
-    time2 = time.perf_counter() - time1
 
     ax.plot((ps[0], ps[-1]), [re, re], '--k')
     ax.annotate('原方程相对误差', xy = (ps[0], re), xytext=(ps[0], re + 0.05), arrowprops={'arrowstyle':'->'}, fontproperties=myfont)
@@ -68,7 +66,7 @@ if __name__ == '__main__':
     ax.annotate('预测相对误差', color='green', xy=(ps[0], ret), xytext=(ps[0], ret - 0.05), arrowprops={'arrowstyle':'->', 'color':'green'}, fontproperties=myfont)
 
     tax = ax.twinx()
-    tax.plot(ps, np.array(times)/time2, '-.')
+    tax.plot(ps, np.array(times)/dt, '-.')
     tax.set_ylabel('降维用时/不降维用时', fontproperties=myfont)
     tax.legend(('相对用时',), prop=myfont)
  

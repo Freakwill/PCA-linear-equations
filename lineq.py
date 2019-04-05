@@ -33,17 +33,11 @@ if __name__ == '__main__':
     ps = np.arange(1, 70, 5)
 
     for p in ps:
-        
-        B1 = B @ W[:, :q]
-        B1_test = B_test @ W[:,:q]
-        C1 = C[:,:p]
+        XX, _ = solve(A, B, p)
+        XX = max0(XX)
 
-        Y = LA.lstsq(C1, B1, rcond=None)[0]
-        XX = V[:,:p] @ Y
-        XX = max0(XX @ Wh[:q, :]) @ W[:, :q]
-
-        E1 = relerror(A @ XX, B1)
-        E2 = relerror(A_test @ XX, B1_test)
+        E1 = relerror(A @ XX, B)
+        E2 = relerror(A_test @ XX, B_test)
 
         Es1.append(E1)
         Es2.append(E2)
@@ -56,7 +50,7 @@ if __name__ == '__main__':
     ax.set_xlabel("A 主成分数", fontproperties=myfont)
     ax.set_ylabel("相对误差", fontproperties=myfont)
 
-    ax.set_title('主成分数-误差关系图', fontproperties=myfont)
+    #ax.set_title('主成分数-误差关系图', fontproperties=myfont)
     ax.plot(ps, Es1, '-o', ps, Es2, '-s')
 
     ax.legend(('降维方程组误差', '预测误差'), prop=myfont)

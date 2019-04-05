@@ -47,5 +47,5 @@ ax.plot(psb+1, contribsb, 'g-.')
 q = 4
 ax.annotate('推荐主成分数(%d)' % q, color='red', xy=(q, ssb[q-1]), xytext=(q, ssb[q-1] - 0.02), arrowprops={'arrowstyle':'->', 'color':'green'}, fontproperties=myfont)
 ax.legend(('B矩阵PCA的累计百分比',), prop=myfont)
-plt.suptitle('主成分数-累计百分比关系图', fontproperties=myfont)
+# plt.suptitle('主成分数-累计百分比关系图', fontproperties=myfont)
 plt.show()

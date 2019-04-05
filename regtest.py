@@ -10,6 +10,7 @@ import numpy as np
 import numpy.linalg as LA
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import *
+from sklearn.neural_network import MLPRegressor
 
 from utils import *
 from data import *
@@ -38,6 +39,7 @@ models = (
 'LassoCV',
 'LassoLars',
 'LassoLarsCV',
+'MLPRegressor'
 )
 
 
@@ -46,7 +48,7 @@ with open('error.txt', 'a') as f:
         model = locals()[model_name]()
         errors = []
         times = []
-        for _ in range(20):
+        for _ in range(2):
             time1 = time.perf_counter()
             Bs = []
             for k in range(q):
