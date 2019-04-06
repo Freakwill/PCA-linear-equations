@@ -19,4 +19,4 @@ regtest
 
 ### TODO
 
-- [] OOP for algorithm
+- [ ] OOP for algorithm
