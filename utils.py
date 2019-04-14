@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# 
+
 
 import numpy as np
 import numpy.linalg as LA
 from scipy.optimize import lsq_linear
 
 from sklearn.linear_model import Lasso
+from sklearn.decomposition import FastICA
+
 
 def max_(x):
     return max(x, 0)
@@ -35,6 +37,8 @@ def lsq(A, B):
 
 def solve_pca(A, B, p=3, q=None):
     """Solve AX=B with PCA
+
+    It is the core of the algorithm
     
     Arguments:
         A {np.ndarray} -- Matrix
@@ -48,22 +52,64 @@ def solve_pca(A, B, p=3, q=None):
         np.ndarray -- solution
     """
 
-    V, _, Vh = LA.svd(A.T @ A)
+    # A -= np.tile(A.mean(axis=0), (A.shape[0],1))
+    # MB = B.mean(axis=0)
+    # B -= np.tile(MB, (B.shape[0],1))
+
+    V, s, Vh = LA.svd(A.T @ A)
     Vp = V[:, :p]
     Cp = A @ Vp
     if q:
         W, _, Wh = LA.svd(B.T @ B)
         Wq = W[:, :q]
         Bq = B @ Wq
-        Y = LA.lstsq(Cp, Bq, rcond=None)[0]
+        Y = np.diag(1/s[:p]) @ (Cp.T @ Bq)
         X = Vp @ Y @ Wh[:q,:]
     else:
-        Y = LA.lstsq(Cp, B, rcond=None)[0]
+        Y = np.diag(1/s[:p]) @ (Cp.T @ B)
         X = Vp @ Y
     # Err = relerror(A @ X, B)
-    return X, 0
+    return X, ''
 
 solve = solve_pca
+
+def solve_ica(A, B, p=3, q=None):
+    """Solve AX=B with ICA
+    """
+
+    ica = FastICA(n_components=p)
+    ica.fit(A)
+    N = ica.mixing_
+    N = LA.pinv(N.T)
+    S = (ica.transform(A) + ica.mean_ @ N)
+    if q:
+        W, _, Wh = LA.svd(B.T @ B)
+        Wq = W[:, :q]
+        Bq = B @ Wq
+        Y = LA.lstsq(S, Bq, rcond=None)[0]
+        X = N @ Y @ Wh[:q,:]
+    else:
+        Y = LA.lstsq(S, B, rcond=None)[0]
+        X = N @ Y
+    return X, ''
+
+def solve_ica2(A, B, p=3, q=None):
+    """Solve AX=B with ICA
+    """
+
+    ica = FastICA(n_components=p)
+    ica.fit(A)
+    Ap = ica.inverse_transform(ica.transform(A))
+    if q:
+        ica = FastICA(n_components=q)
+        Bq = ica.inverse_transform(ica.transform(B))
+        Y = LA.lstsq(Ap, Bq, rcond=None)[0]
+        X = Y @ Wh[:q,:]
+    else:
+        Y = LA.lstsq(W, B, rcond=None)[0]
+        X = Y
+    return X, ''
+
 
 from sklearn.decomposition import NMF
 def solve_nmf(A, B, p=3, q=None):

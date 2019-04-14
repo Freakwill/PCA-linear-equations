@@ -43,9 +43,8 @@ if __name__ == '__main__':
     A, A_test, B, B_test = train_test_split(A, B, test_size=0.2)
 
     ps = np.arange(1, 30)
-
-    perf(A, B, A_test, B_test, ps)
-    perf(A, B, A_test, B_test, ps, method='nmf')
+    for method in ('pca', 'nmf', 'ica'):
+        perf(A, B, A_test, B_test, ps, method=method)
 
     import matplotlib.pyplot as plt
     from matplotlib.font_manager import FontProperties
@@ -58,7 +57,8 @@ if __name__ == '__main__':
 
     ax.plot(ps, pca['test'], '-o')
     ax.plot(ps, nmf['test'], '-d')
-    ax.legend(('PCA预测误差', 'NMF预测误差'), prop=myfont)
+    ax.plot(ps, ica['test'], '-^')
+    ax.legend(('PCA预测误差', 'NMF预测误差', 'ICA预测误差'), prop=myfont)
 
     time1 = time.perf_counter()
     XX = LA.lstsq(A, B, rcond=None)[0]
@@ -66,8 +66,8 @@ if __name__ == '__main__':
     time2 = time.perf_counter() - time1
 
     tax = ax.twinx()
-    tax.plot(ps, pca['time']/time2, '-.', ps, nmf['time']/time2, '-.+')
+    tax.plot(ps, pca['time']/time2, '-.', ps, nmf['time']/time2, '-.+', ps, ica['time']/time2, '-.*')
     tax.set_ylabel('降维用时/不降维用时', fontproperties=myfont)
-    tax.legend(('PCA相对用时', 'NMF相对用时'), prop=myfont)
+    tax.legend(('PCA相对用时', 'NMF相对用时', 'ICA预测误差'), prop=myfont)
  
     plt.show()
