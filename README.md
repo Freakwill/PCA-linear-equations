@@ -19,5 +19,9 @@ regtest
 
 ### TODO
 
-- [ ] OOP for algorithm
+- [x] OOP for algorithm
 - [ ] better API
+
+### Also see
+A mini framework of DR
+[dred](https://github.com/Freakwill/dred)
